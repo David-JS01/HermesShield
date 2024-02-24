@@ -7,7 +7,7 @@
 {% block body %} 
 <header class="cabecera">
     <script src="static/javascript/logout.js"></script>
-    <h1 class="titulo-cabecera">{{ username }}</h1>
+    <h1 class="titulo-cabecera">{{username}}</h1>
     <button class="boton-logout" id="boton-logout">Cerrar Sesión</button>
 </header>
 <div class="cuerpo">
@@ -16,8 +16,8 @@
 <div class="contenedor">
     {% for email in emails %}
 <div class="boton-enlace">
-    <a href="/tu/destino">{{ email.subject}}</a>
+    <a href="/tu/destino">{{ email.Remitente}} -> {{ email.Asunto}} </a>
   </div>
-  
+    {% endfor %}
 </div>
 {% endblock %}

@@ -1,6 +1,8 @@
 from flask import Flask, render_template, url_for, request, redirect
 from cryptography.fernet import Fernet
 import os
+from modules.mails import recuperarCorreos
+
 
 app = Flask(__name__)
 login_file="./login.txt"
@@ -73,8 +75,8 @@ def index():
     correo, contraseña = recuperar_credenciales()
     print("Correo:", correo)
     print("Contraseña:", contraseña)
-    
-    return render_template("index.html", username=correoUsuario, emails=emails)
+    emails=recuperarCorreos(correo, contraseña)
+    return render_template("index.html", username=correo, emails=emails)
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -102,5 +104,16 @@ def logout():
     return redirect('/')
 
 
+def cleanup():
+    # Esta función se ejecutará al finalizar la aplicación Flask
+    print("La aplicación se ha detenido. Limpiando recursos...")
+    if os.path.isfile(login_file):
+        # Si el archivo no está vacío, vaciar su contenido
+        open(login_file, 'w').close()
+
+
 if __name__=="__main__":
-    app.run(debug=True)
+    try:
+        app.run(debug=True)
+    finally:
+        cleanup()
