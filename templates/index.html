@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block head %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+{% block body %} 
+<header class="cabecera">
+    <script src="static/javascript/logout.js"></script>
+    <h1 class="titulo-cabecera">{{ username }}</h1>
+    <button class="boton-logout" id="boton-logout">Cerrar Sesión</button>
+</header>
+<div class="cuerpo">
+    <h1 class="titulo-cuerpo">Emails:</h1>
+</div>
+<div class="contenedor">
+    {% for email in emails %}
+<div class="boton-enlace">
+    <a href="/tu/destino">{{ email.subject}}</a>
+  </div>
+  
+</div>
+{% endblock %}
