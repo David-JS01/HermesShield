@@ -2,6 +2,7 @@
 
 {% block head %} 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
 
 {% block body %} 
@@ -15,9 +16,17 @@
 </div>
 <div class="contenedor">
     {% for email in emails %}
-<div class="boton-enlace">
-    <a href="/tu/destino">{{ email.Remitente}} -> {{ email.Asunto}} </a>
-  </div>
+    <div class="boton-enlace">
+        <a href="/mail/{{email.UID}}">
+            <div class="icono">
+                <i class="fas fa-envelope"></i> <!-- Icono de sobre -->
+            </div>
+            <div class="info-correo">
+                <span class="emisor">{{ email.Remitente }}</span> <!-- Campo para el remitente -->
+                <span class="asunto">{{ email.Asunto }}</span> <!-- Campo para el asunto -->
+            </div>
+        </a>
+    </div>
     {% endfor %}
 </div>
 {% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block head %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mailView.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<title>Visualización de Correos</title>
+{% endblock %}
+
+{% block body %} 
+<header>
+    <h1>Email Viewer</h1>
+</header>
+<div class="email-container">
+    <div class="headers">
+        <h2>Headers:</h2>
+        <ul>
+            <li><strong>From:</strong> {{datos.Remitente}}</li>
+            <li><strong>To:</strong> {{datos.Destinatario}}</li>
+            <li><strong>Subject:</strong> {{datos.Asunto}}</li>
+            <li><strong>Date:</strong> {{datos.Fecha}}</li>
+        </ul>
+    </div>
+    <div class="content">
+        <h2>Content:</h2>
+        {{datos.Contenido_HTML | safe}}
+    </div>
+</div>
+</body>
+</html>
+{% endblock %}
