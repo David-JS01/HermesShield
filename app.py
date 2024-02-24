@@ -2,6 +2,7 @@ from flask import Flask, render_template, url_for, request, redirect
 from cryptography.fernet import Fernet
 import os
 from modules.mails import recuperarCorreos
+from modules.mailData import recuperarCorreoPorUID, leer_correo_archivo
 
 
 app = Flask(__name__)
@@ -67,6 +68,22 @@ def recuperar_credenciales():
         return None, None
 
 
+def cleanup():
+    # Esta función se ejecutará al finalizar la aplicación Flask
+    print("La aplicación se ha detenido. Limpiando recursos...")
+    if os.path.isfile(login_file):
+        # Si el archivo no está vacío, vaciar su contenido
+        open(login_file, 'w').close()
+    
+    archivos = os.listdir()
+    
+    # Iterar sobre cada archivo en el directorio
+    for archivo in archivos:
+        # Verificar si el archivo es un archivo .txt y no es "login.txt"
+        if archivo.endswith('.txt') and archivo != 'login.txt':
+            # Eliminar el archivo
+            os.remove(archivo)
+
 @app.route('/')
 def index():
     
@@ -93,23 +110,23 @@ def login():
             return "error al iniciar sesion"
     else:
         return render_template('login.html')
-    
+
+
+@app.route('/mail/<uid>')
+def showMail(uid):
+    correo, contraseña=recuperar_credenciales()
+    if not os.path.isfile(f"{uid}.txt"):
+        if not recuperarCorreoPorUID(correo, contraseña, uid):
+            return "error en la recuperación del correo"
+    datos_correo=leer_correo_archivo(f"{uid}.txt")
+    return render_template('mailView.html', datos=datos_correo)
+
 
 @app.route('/logout')
 def logout():
-    if os.path.isfile(login_file):
-        # Si el archivo no está vacío, vaciar su contenido
-        open(login_file, 'w').close()
-#contrasena_desencriptada = cipher_suite.decrypt(contrasena_encriptada_leida).decode()
+    cleanup()
     return redirect('/')
 
-
-def cleanup():
-    # Esta función se ejecutará al finalizar la aplicación Flask
-    print("La aplicación se ha detenido. Limpiando recursos...")
-    if os.path.isfile(login_file):
-        # Si el archivo no está vacío, vaciar su contenido
-        open(login_file, 'w').close()
 
 
 if __name__=="__main__":

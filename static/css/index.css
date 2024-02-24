@@ -75,4 +75,29 @@ body {
   }
   
   
-  
+  .info-correo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.info-correo .emisor {
+    margin-bottom: 5px; /* Espacio entre el remitente y el asunto */
+}
+
+.icono {
+    display: inline-block;
+    width: 50px; /* Ancho deseado para el icono */
+    height: 50px; /* Altura deseada para el icono */
+    font-size: 40px; /* Tamaño del icono */
+    margin-right: 10px; /* Espacio entre el icono y la información del correo */
+    line-height: 50px; /* Para centrar verticalmente el icono */
+    margin-left: 10px;
+    float: left; /* Hacer que el icono se sitúe a la izquierda */
+}
+
+.info-correo {
+    overflow: hidden; /* Limpiar el float y hacer que el texto fluya alrededor del icono */
+}

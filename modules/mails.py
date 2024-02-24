@@ -57,4 +57,4 @@ def procesar_cabecera(cabecera, uid):
     if coincidencias:
         remitente=coincidencias.group(1)
 
-    return {'Remitente': remitente, 'Asunto': asunto, 'Fecha': fecha, 'UID': uid}
+    return {'Remitente': remitente, 'Asunto': asunto, 'Fecha': fecha, 'UID': uid.decode()}
