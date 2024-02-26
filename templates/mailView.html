@@ -10,9 +10,18 @@
 <header>
     <h1>Email Viewer</h1>
 </header>
-<div class="email-container">
+
+<div class="container">
+    <div class="security-params">
+        <!-- Aquí puedes mostrar los parámetros de seguridad -->
+        <h2>Informe de seguridad preeliminar:</h2>
+        {% if loading %}
+        <div class="loader"></div> <!-- Este es el contenedor del indicador de carga -->
+        {%  endif %}
+    </div>
+    <div class="email-container">
     <div class="headers">
-        <h2>Headers:</h2>
+        <h2>Cabeceras:</h2>
         <ul>
             <li><strong>From:</strong> {{datos.Remitente}}</li>
             <li><strong>To:</strong> {{datos.Destinatario}}</li>
@@ -20,10 +29,12 @@
             <li><strong>Date:</strong> {{datos.Fecha}}</li>
         </ul>
     </div>
-    <div class="content">
-        <h2>Content:</h2>
+    
+    <div class="content" style="overflow: auto; white-space: nowrap;">
+        <h2>Contenido:</h2>
         {{datos.Contenido_HTML | safe}}
     </div>
+</div>
 </div>
 </body>
 </html>

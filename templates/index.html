@@ -8,6 +8,7 @@
 {% block body %} 
 <header class="cabecera">
     <script src="static/javascript/logout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <h1 class="titulo-cabecera">{{username}}</h1>
     <button class="boton-logout" id="boton-logout">Cerrar Sesión</button>
 </header>
@@ -15,9 +16,10 @@
     <h1 class="titulo-cuerpo">Emails:</h1>
 </div>
 <div class="contenedor">
+    <a href="#" onclick="mostrarCarga(4)">Ver correo 4</a>
     {% for email in emails %}
     <div class="boton-enlace">
-        <a href="/mail/{{email.UID}}">
+        <a href="#" onclick="mostrarCarga('{{ email.UID }}')">
             <div class="icono">
                 <i class="fas fa-envelope"></i> <!-- Icono de sobre -->
             </div>
@@ -28,5 +30,22 @@
         </a>
     </div>
     {% endfor %}
+    <script>
+        function mostrarCarga(uid) {
+            // Mostrar mensaje de carga con SweetAlert2
+            Swal.fire({
+                title: 'Analizando correo. Esto puede llevar unos minutos.',
+                timer: 120000, // Duración en milisegundos
+                timerProgressBar: true,
+                showConfirmButton: false, // No mostrar botón de confirmación
+                onBeforeOpen: () => {
+                    // Redireccionar a la página para ver el correo después de 2 segundos (2000 milisegundos)
+                    setTimeout(function() {
+                        window.location.href = '/mail/' + uid;
+                    }, 20);
+                }
+            });
+        }
+    </script>
 </div>
 {% endblock %}
