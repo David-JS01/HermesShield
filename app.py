@@ -1,11 +1,13 @@
-from flask import Flask, render_template, url_for, request, redirect
+from flask import Flask, render_template, url_for, request, redirect, flash
 from cryptography.fernet import Fernet
 import os
 from modules.mails import recuperarCorreos
 from modules.mailData import recuperarCorreoPorUID, leer_correo_archivo
+from modules.kernel import analisisDeSeguridad
 
 
 app = Flask(__name__)
+app.secret_key = 'clave'
 login_file="./login.txt"
 correoUsuario="hola"
 key="h"
@@ -119,6 +121,8 @@ def showMail(uid):
         if not recuperarCorreoPorUID(correo, contraseña, uid):
             return "error en la recuperación del correo"
     datos_correo=leer_correo_archivo(f"{uid}.txt")
+    #flash('analizando email')
+    seguridad=analisisDeSeguridad(f"{uid}.txt")
     return render_template('mailView.html', datos=datos_correo)
 
 
