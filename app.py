@@ -122,8 +122,13 @@ def showMail(uid):
             return "error en la recuperación del correo"
     datos_correo=leer_correo_archivo(f"{uid}.txt")
     #flash('analizando email')
-    seguridad=analisisDeSeguridad(f"{uid}.txt")
-    return render_template('mailView.html', datos=datos_correo)
+    seguridad, servidores=analisisDeSeguridad(f"{uid}.txt")
+    for s in servidores:
+        print("len "+ str(len(s.blacklists)))
+    servers=[{'nombre': servidor.ip_address, 'blacklists': len(servidor.blacklists)} for servidor in servidores]
+
+    
+    return render_template('mailView.html', datos=datos_correo, fiabilidad=seguridad, servers=servers)
 
 
 @app.route('/logout')

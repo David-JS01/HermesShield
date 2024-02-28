@@ -3,6 +3,15 @@
 {% block head %} 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/mailView.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script>
+            var fiabilidad = '{{ fiabilidad }}';
+            var servidores = {{ servers | tojson | safe }};
+            
+            // Aquí puedes usar 'fiabilidad' en tu script JavaScript
+        </script>
+        <script src="{{ url_for('static', filename='javascript/fiabilidad.js') }}"></script>
+        <script src="{{ url_for('static', filename='javascript/blacklists.js') }}"></script>
 <title>Visualización de Correos</title>
 {% endblock %}
 
@@ -14,10 +23,10 @@
 <div class="container">
     <div class="security-params">
         <!-- Aquí puedes mostrar los parámetros de seguridad -->
-        <h2>Informe de seguridad preeliminar:</h2>
-        {% if loading %}
-        <div class="loader"></div> <!-- Este es el contenedor del indicador de carga -->
-        {%  endif %}
+        <h2>Informe de seguridad:</h2>
+        <div id="myChart" width="800" height="800"></div>
+        <div id="blacklistSer" width="400" height="400"></div>
+        
     </div>
     <div class="email-container">
     <div class="headers">

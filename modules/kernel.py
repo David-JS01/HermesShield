@@ -22,8 +22,18 @@ def analisisDeSeguridad(file):
                 server.ip_address=match.group(1)
                 server.domain=match.group(2)
                 serverList.append(server)
-    
+    percTotal=0
+    blacklist=[]
     for servers in serverList:
-        checkIp(servers.domain)
+        blacklist=checkIp(servers.domain)
+        servers.blacklists=blacklist.copy()
+        servers.perc= len(blacklist) / 30
+        print("Server en: " + str(len(blacklist)) + " listas nivel de peligrosidad: " + str(servers.perc) )
+        percTotal+=servers.perc
+        
+    
+    
+    print("fiabilidad correo: " + str(100-percTotal) + "%")
+    return str(100-percTotal), serverList
     
     return ""
