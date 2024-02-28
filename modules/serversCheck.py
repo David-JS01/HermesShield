@@ -12,6 +12,7 @@ class ThreadRBL(threading.Thread):
     def __init__(self, queue):
         threading.Thread.__init__(self)
         self.queue = queue
+        
 
     def run(self):
         while True:
@@ -36,6 +37,7 @@ def checkIp(addr):
     #f = open("./blacklists.txt", "r")
     #serverlist = f.read().splitlines()
     #f.close()
+    on_blacklist.clear()
     filename="./blacklists.lst"
     #print(os.getcwd())
     if os.path.exists(filename):
@@ -47,7 +49,7 @@ def checkIp(addr):
         return
 
     queue = Queue.Queue()
-    on_blacklist = []
+    #on_blacklist = []
     
     ip = ipaddress.ip_address(addr)
     if (ip.version == 6):
@@ -77,4 +79,6 @@ def checkIp(addr):
         print('Result:', output)
     else:
         print('Result:', '%s not on any known blacklists' % addr)
+
+    return on_blacklist
 

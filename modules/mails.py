@@ -56,5 +56,9 @@ def procesar_cabecera(cabecera, uid):
     coincidencias = re.search(regex_correo, remitente)
     if coincidencias:
         remitente=coincidencias.group(1)
+    received = mensaje.get_all('Received')
+    tam=0
+    if received:
+        tam=len(received)
 
-    return {'Remitente': remitente, 'Asunto': asunto, 'Fecha': fecha, 'UID': uid.decode()}
+    return {'Remitente': remitente, 'Asunto': asunto, 'Fecha': fecha, 'UID': uid.decode(), 'Tam': tam}

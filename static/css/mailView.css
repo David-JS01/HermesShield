@@ -14,16 +14,22 @@ header {
 
 .email-container {
     max-width: 800px;
-    margin: 20px auto;
+    margin: 20px 30px;
     background-color: white;
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    flex: 0 0 60%;
+    
+    
 }
 
 .headers, .content {
     margin-bottom: 20px;
+    margin-right: auto;
 }
+
+
 
 .headers h2, .content h2 {
     color: #333;
@@ -43,3 +49,41 @@ header {
 .content p {
     line-height: 1.6;
 }
+
+.security-params {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    max-width: 800px;
+    margin: 20px 30px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    flex: 0 0 40%;
+}
+
+.content-container {
+    
+    grid-column: 2;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}  
+
+.security-params h2 {
+    color: #333;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+
+
+
+  canvas {
+    width: 400px;
+    height: 400px;
+}
+
