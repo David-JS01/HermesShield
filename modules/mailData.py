@@ -46,6 +46,7 @@ def recuperarCorreoPorUID(correo, contraseña, uid):
         with open(nombre_archivo, "wb") as archivo:
             archivo.write(correo_completo)
 
+        
         print(f"Correo guardado como '{nombre_archivo}'")
         return True
     except Exception as e:

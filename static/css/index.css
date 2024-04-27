@@ -8,6 +8,9 @@ body {
     background-color: #083a85;
     color: #fff;
     padding: 20px;
+
+    position: relative; /* asegúrate de que el header tenga una posición relativa */
+    overflow: hidden; /* oculta cualquier contenido que se salga del header */
 }
 
 .cabecera .titulo-cabecera {
@@ -100,4 +103,22 @@ body {
 
 .info-correo {
     overflow: hidden; /* Limpiar el float y hacer que el texto fluya alrededor del icono */
+}
+
+.imagen-derecha {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-right: 12%;
+    width: 100px; /* ajusta según sea necesario */
+    height: auto;
+    /* Ajusta según sea necesario */
+}
+
+.appName {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-right: 2%;
+    margin-top: 2%;
 }
