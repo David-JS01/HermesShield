@@ -1,9 +1,30 @@
 import email
+from email.header import decode_header
 from modules.classes import MailServer, Mail
 import re
 from modules.serversCheck import checkIp
 from requests import get
 import socket
+import Levenshtein
+import json
+import requests
+
+def decode_name(name):
+    decoded_name = decode_header(name)[0][0]
+    if isinstance(decoded_name, bytes):
+        name = decoded_name.decode('utf-8')  # Assuming UTF-8 encoding
+    else:
+        name = decoded_name
+    return name
+
+def compare_email_name(email, name):
+    
+    lower_name = str.lower(name)
+    lower_email = str.lower(str.split(email,'@')[0])
+    nopunc_email = re.sub('[!@#$%^&*()-=+.,]', ' ', lower_email)
+    nonum_email = re.sub(r'[0-9]+', '', nopunc_email).strip()
+    distance = round(Levenshtein.distance(lower_name,nonum_email) / len(email),2)
+    return distance
 
 def checkARC (mensaje, correo):
     spf_pattern = r'spf=(\w+)'
@@ -94,7 +115,7 @@ def checkAUTH (mensaje, correo):
     sender_ip = re.search(ip_pattern, auth_result)
     blacklist_sender = checkIp(sender_ip.group(1))
     print("listas: "+str(len(blacklist_sender)))
-    correo.add_peligrosidad((len(blacklist_sender)/15*100))
+    #correo.add_peligrosidad((len(blacklist_sender)/15*100))
     sender_domain = domain_pattern.search(auth_result)
     print(sender_domain.group(1))
     sender_domain_ip = None
@@ -116,7 +137,48 @@ def checkFrom(mensaje, correo):
     peligrosidad = 0
     fromField = mensaje['From']
     returnPath = mensaje['Return-Path']
+    domain_regex = re.compile(r'@(.+)$')
     email_match = re.search(r'<([^<>]+)>', fromField)
-    if email_match.group(1) != returnPath:
+    name_re = re.compile(r'(.+?)(?:\s*\n\s*)?<(.*?)>')
+    email_re = re.compile(r'<(.*?)>')
+    print("domain "+domain_regex.search(email_match.group(1)).group(1) + " " +domain_regex.search(email_match.group(1)).group(0)) 
+    if domain_regex.search(email_match.group(1)).group(1) != returnPath:
         correo.emisor_missmatch = True
-        peligrosidad = peligrosidad + 50
+        correo.add_peligrosidad(50)
+    print(fromField)
+    name = name_re.match(fromField).group(1).strip()
+    email = email_match.group(1)
+    name = decode_name(name)
+    print(name)
+    distance = compare_email_name(email, name)
+    correo.add_peligrosidad(distance * 5)
+    print("distancia: "+str(distance))
+    with open('emailBlocklist.conf') as blocklist:
+        blocklist_content = {line.rstrip() for line in blocklist.readlines()}
+        print(returnPath.partition('@')[2])
+        if returnPath.partition('@')[2] in blocklist_content:
+            print("correo listado como spam")
+            correo.add_peligrosidad(10)
+            correo.spam_mail = True
+    return
+    
+
+def get_ip_sender_info (ip):
+    url = 'https://api.abuseipdb.com/api/v2/check'
+
+    querystring = {
+        'ipAddress': ip,
+        'maxAgeInDays': '90',
+        'verbose': True
+    }
+
+    headers = {
+        'Accept': 'application/json',
+        'Key': '083e924fd00c1a25639137aa932f2ed04a1fde7c5098f3605e1902be1a9a1f021386bac317ca365f'
+    }
+
+    response = requests.request(method='GET', url=url, headers=headers, params=querystring)
+
+    # Formatted output
+    decodedResponse = json.loads(response.text)
+    print (json.dumps(decodedResponse, sort_keys=True, indent=7))
