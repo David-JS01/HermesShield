@@ -22,6 +22,7 @@ class Mail:
         self.servidores = []
         self.emisor_missmatch = False
         self.checked = False
+        self.spam_mail = False
         self._peligrosidad = 0
 
     @property

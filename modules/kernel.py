@@ -3,7 +3,8 @@ from modules.classes import MailServer, Mail
 import re
 from modules.serversCheck import checkIp
 from requests import get
-from modules.headers import checkARC, checkAUTH
+from modules.headers import checkARC, checkAUTH, checkFrom, get_ip_sender_info
+from modules.body import lexical_analyzer, ia_model_analyzer
 import socket
 
 
@@ -22,6 +23,9 @@ def analisisDeSeguridad(file):
         correo_raw = f.read()
 
     mensaje = email.message_from_string(correo_raw)
+
+    ################################CABECERAS DEL EMAIL#############################################################################
+
     #Se analizan todos los campos Recieved, obteniendo direccion ip y dominio para posteriormente comprobar contra blacklists publicas
     received = mensaje.get_all('Received')
     regex = r"from\s+([\w.-]+)\s*\(\[?([^\]\s]+)\]?\)"
@@ -38,7 +42,7 @@ def analisisDeSeguridad(file):
                 correo.add_servidor(server)
     percTotal=0
     blacklist=[]
-    for servers in serverList:
+    for servers in correo.servidores:
         blacklist=checkIp(servers.domain)
         servers.blacklists=blacklist.copy()
         servers.perc= len(blacklist) / 15
@@ -62,7 +66,17 @@ def analisisDeSeguridad(file):
     #percTotal=percTotal+pel
     percTotal = correo.peligrosidad
     #habria que checkear el campo DKIM-Signature pero en correo Outlook siempre falla.
+    checkFrom(mensaje, correo)
 
+    auth_result = mensaje['Authentication-Results']
+    sender_ip = re.search(ip_pattern, auth_result)
+    #get_ip_sender_info(sender_ip.group(1)) #de momento comentado para evitar gasto de recursos en pruebas
+
+
+    ################################ BODY DEL EMAIL ###################################################
+    f1 = lexical_analyzer(mensaje)
+    f2 = ia_model_analyzer(mensaje)
+    percTotal = percTotal + f1 + f2
     print("fiabilidad correo: " + str(100-percTotal) + "%")
     return str(100-percTotal), serverList
     
