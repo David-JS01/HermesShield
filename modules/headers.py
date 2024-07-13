@@ -142,17 +142,20 @@ def checkFrom(mensaje, correo):
     name_re = re.compile(r'(.+?)(?:\s*\n\s*)?<(.*?)>')
     email_re = re.compile(r'<(.*?)>')
     print("domain "+domain_regex.search(email_match.group(1)).group(1) + " " +domain_regex.search(email_match.group(1)).group(0)) 
-    if domain_regex.search(email_match.group(1)).group(1) != returnPath:
+    if (email_match.group(1)) != returnPath:
         correo.emisor_missmatch = True
         correo.add_peligrosidad(50)
     print(fromField)
+    correo.returnPath = returnPath
     name = name_re.match(fromField).group(1).strip()
     email = email_match.group(1)
     name = decode_name(name)
     print(name)
     distance = compare_email_name(email, name)
+    correo.distance = distance
     correo.add_peligrosidad(distance * 5)
     print("distancia: "+str(distance))
+    correo.domain = returnPath.partition('@')[2]
     with open('emailBlocklist.conf') as blocklist:
         blocklist_content = {line.rstrip() for line in blocklist.readlines()}
         print(returnPath.partition('@')[2])

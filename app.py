@@ -4,6 +4,7 @@ import os
 from modules.mails import recuperarCorreos
 from modules.mailData import recuperarCorreoPorUID, leer_correo_archivo
 from modules.kernel import analisisDeSeguridad
+import shutil
 
 
 app = Flask(__name__)
@@ -11,6 +12,7 @@ app.secret_key = 'clave'
 login_file="./login.txt"
 correoUsuario="hola"
 key="h"
+dicts = [None] * (30 + 1)
 
 def verificar_credenciales(archivo):
     try:
@@ -85,6 +87,21 @@ def cleanup():
         if archivo.endswith('.txt') and archivo != 'login.txt':
             # Eliminar el archivo
             os.remove(archivo)
+    
+    current_dir = os.getcwd()
+    
+    # Iterate over all files and directories in the current directory
+    for item in os.listdir(current_dir):
+        # Check if the item is a directory and starts with "folder_"
+        if os.path.isdir(item) and item.startswith("folder_"):
+            # Check if the rest of the name is numeric (indicating a UID)
+            uid_suffix = item[7:]  # Get the part after "folder_"
+            if uid_suffix.isnumeric():
+                # Construct the full path to the directory
+                dir_path = os.path.join(current_dir, item)
+                # Delete the directory and its contents
+                shutil.rmtree(dir_path)
+                print(f"Deleted folder: {dir_path}")
 
 @app.route('/')
 def index():
@@ -95,6 +112,7 @@ def index():
     print("Correo:", correo)
     print("Contraseña:", contraseña)
     emails=recuperarCorreos(correo, contraseña)
+    #dicts = [None] * (len(emails) + 1)
     return render_template("index.html", username=correo, emails=emails)
 
 
@@ -122,13 +140,17 @@ def showMail(uid):
             return "error en la recuperación del correo"
     datos_correo=leer_correo_archivo(f"{uid}.txt")
     #flash('analizando email')
-    seguridad, servidores=analisisDeSeguridad(f"{uid}.txt")
+    seguridad, servidores, dicti=analisisDeSeguridad(f"{uid}.txt", uid)
     for s in servidores:
         print("len "+ str(len(s.blacklists)))
     servers=[{'nombre': servidor.ip_address, 'blacklists': len(servidor.blacklists)} for servidor in servidores]
 
-    
+    dicts[int(uid)]=dicti
     return render_template('mailView.html', datos=datos_correo, fiabilidad=seguridad, servers=servers)
+
+@app.route('/mail/<uid>/report')
+def showReport(uid):
+    return render_template('report.html', uid=uid, analysis = dicts[int(uid)])
 
 
 @app.route('/logout')

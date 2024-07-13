@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Email Investigation Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <script>
+        // JavaScript function to get the current date and display it in the <p> element
+        function displayDate() {
+            var currentDate = new Date();
+            var formattedDate = currentDate.toDateString(); // Format the date as a string
+            document.getElementById("dateDisplay").innerText = formattedDate; // Insert the date into the <p> element
+        }
+    </script>
+{% endblock %}
+
+{% block body %}
+<body onload="displayDate()">
+    <div class="container">
+        <header>
+            <h1>Email Investigation Report</h1>
+            <h2>Report for email with uid {{uid}} | {{ analysis.Subject }}</h2>
+            <p id="dateDisplay"></p>
+        </header>
+        <section class="headers">
+            <h3>Headers</h3>
+            <div class="header-item">
+                <label><i class="fas fa-exclamation-circle"></i> From</label>
+                {% if (analysis.distance > 0.5) %}
+                <p><span class="danger"><i class="fas fa-exclamation-circle"></i> Different name and address can mean spoofing email</span></p>
+                <p>{{ analysis.From }}</p>
+                {% else %}
+                <p>{{ analysis.From }}</p>
+                {% endif %}
+            </div>
+            <div class="header-item">
+                <label><i class="fas fa-user"></i> To</label>
+                <p>{{ analysis.To }}</p>
+            </div>
+            <div class="header-item">
+                <label><i class="fas fa-clock"></i> Timestamp</label>
+                <p>{{ analysis.Date }} </p>
+            </div>
+            <div class="header-item">
+                <label><i class="fas fa-reply"></i> Domain </label>
+                {% if analysis.spam_mail %}
+                <p><span class="danger"><i class="fas fa-exclamation-circle"></i> Domain marked as SPAM</span></p>
+                <p>{{analysis.domain}} </p>
+                {% else %}
+                <p><span class="pass"><i class="fas fa-check-circle"></i> Domain NOT marked as SPAM </span></p>
+                <p>{{analysis.domain}} </p>
+                {% endif %}
+            </div>
+            <div class="header-item">
+                <label><i class="fas fa-exchange-alt"></i> Return-Path</label>
+                {% if analysis.emisor_missmatch %}
+                <p>Result: <span class="danger"><i class="fas fa-exclamation-circle"></i> From and Return-Path fields do not match</span></p>
+                <p>{{ analysis.returnPath }}</p>
+                {% else %}
+                <p>Result: <span class="pass"><i class="fas fa-check-circle"></i> PASS </span></p>
+                <p>{{ analysis.returnPath }}</p>
+                {% endif %}
+            </div>
+            <div class="header-item">
+                <label><i class="fas fa-map-marker-alt"></i> Originating IP</label>
+                <p>{{analysis.ip_sender}}</p>
+            </div>
+            <div class="header-item">
+                <label><i class="fas fa-server"></i> Reverse DNS</label>
+                <p>mail1.protonmail.ch</p>
+            </div>
+        </section>
+        <section class="security">
+            <h3>Security</h3>
+            <div class="security-item">
+                <label><i class="fas fa-shield-alt"></i> SPF</label>
+                {% if analysis.AUTH_spf_fail %}
+                <p>Result: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                <p>SPF Record: <span class="highlight">v=spf1 include:_spf.protection.outlook.com include:_spf.protonmail.ch mx ~all</span></p>
+                {% else %}
+                <p>Result: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                <p>SPF Record: <span class="highlight">v=spf1 include:_spf.protection.outlook.com include:_spf.protonmail.ch mx ~all</span></p>
+                {% endif %}
+            </div>
+            <div class="security-item">
+                <label><i class="fas fa-shield-alt"></i> DKIM</label>
+                {% if analysis.AUTH_dkim_fail %}
+                <p>Result: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                <p>DKIM Selector: <span class="highlight">protonmail_domainkey.huelsgroup.com</span></p>
+                {% else %}
+                <p>Result: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                <p>DKIM Selector: <span class="highlight">protonmail_domainkey.huelsgroup.com</span></p>
+                {% endif %}
+            </div>
+            <div class="security-item">
+                <label><i class="fas fa-shield-alt"></i> DMARC</label>
+                {% if analysis.AUTH_dmarc_fail %}
+                <p>Result: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                <p>DMARC Record: <span class="highlight">v=DMARC1; p=none; rua=mailto:address@yourdomain.com</span></p>
+                {% else %}
+                <p>Result: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                <p>DMARC Record: <span class="highlight">v=DMARC1; p=none; rua=mailto:address@yourdomain.com</span></p>
+                {% endif %}
+            </div>
+            <div class="security-item">
+                <label><i class="fas fa-shield-alt"></i> Authentication</label>
+                {% if analysis.AUTH_compauth_fail %}
+                <p>Result: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                <p>DMARC Record: <span class="highlight">Authentication failed</span></p>
+                {% else %}
+                <p>Result: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                <p>DMARC Record: <span class="highlight">Authentication verified</span></p>
+                {% endif %}
+            </div>
+        </section>
+        <section class="servers">
+            <h3>Received servers</h3>
+            <div class="timeline">
+                {% for server in analysis.servidores %}
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4><i class="fas fa-server"></i> Dominio: {{server.ip_address}}</h4> 
+                        <h4>IP: {{server.domain}}</h4>
+                        {% if (server.perc > 0) %}
+                        <p><span class="danger">Riesgo: {{server.perc}}%</span></p>
+                        <h5>Listas:</h5>
+                        <p>{{server.blacklists}}</p>
+                        {% else %}
+                        <p>Riesgo: {{server.perc}}%</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        <section class="attachments">
+            <h3>Attachments</h3>
+            {% for attach in analysis.files %}
+            <div class="attachment-item">
+                <p>File name: <span class="highlight">{{attach.name}}</span></p>
+                <p>File type: {{attach.type}}</p>
+                <p>File hash: {{attach.hash}}</p>
+                <p>Analysis date: {{attach.date}}</p>
+                <p>VirusTotal reputation: {{attach.reputation}} </p>
+                {% if (attach.harm > 0) %}
+                <p>Harm: <span class="pass"><i class="fas fa-check-circle"></i> {{attach.harm}}/{{attach.harm + attach.malicious + attach.suspicious + attach.undetected}}</span></p>
+                {% endif %}
+                {% if (attach.malicious > 0) %}
+                <p>Malicious: <span class="danger"><i class="fas fa-exclamation-circle"></i> {{attach.malicious}}/{{attach.harm + attach.malicious + attach.suspicious + attach.undetected}}</span></p>
+                {% endif %}
+                {% if (attach.suspicious > 0) %}
+                <p>Suspicious: <span class="neutral"><i class="fas fa-exclamation-circle"></i> {{attach.suspicious}}/{{attach.harm + attach.malicious + attach.suspicious + attach.undetected}}</span></p>
+                {% endif %}
+                {% if (attach.undetected > 0) %}
+                <p>Undetected: <span class="neutral"><i class="fas fa-exclamation-circle"></i> {{attach.undetected}}/{{attach.harm + attach.malicious + attach.suspicious + attach.undetected}}</span></p>
+                {% endif %}
+                {% for engine in attach.engine_analysis %}
+                {% if (engine.result == "malicious") %}
+                <p style="font-size:13px; padding-left:30px;"> <span class="danger">Engine: {{engine.name}} Result: {{engine.result}} Category: {{engine.category}}</span></p>
+                {% elif (engine.result == "clean") %}
+                <p style="font-size:13px; padding-left:30px;"> <span class="pass">Engine: {{engine.name}} Result: {{engine.result}} Category: {{engine.category}}</span></p>
+                {% else %}
+                <p style="font-size:13px; padding-left:30px;"> <span class="neutral">Engine: {{engine.name}} Result: {{engine.result}} Category: {{engine.category}}</span></p>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </section>
+        <section class="urls">
+            <h3>URLs</h3>
+            {% for url in analysis.urls %}
+            <div class="url-item">
+                <p>URL: <a href="https://blank-84.oittt.net/" target="_blank">{{url.name}}</a></p>
+            {% if (url.harm > 0) %}
+            <p>Harm: <span class="pass"><i class="fas fa-check-circle"></i> {{url.harm}}/{{url.harm + url.malicious + url.suspicious + url.undetected}}</span></p>
+            {% endif %}
+            {% if (url.malicious > 0) %}
+            <p>Malicious: <span class="danger"><i class="fas fa-exclamation-circle"></i> {{url.malicious}}/{{url.harm + url.malicious + url.suspicious + url.undetected}}</span></p>
+            {% endif %}
+            {% if (url.suspicious > 0) %}
+            <p>Suspicious: <span class="neutral"><i class="fas fa-exclamation-circle"></i> {{url.suspicious}}/{{url.harm + url.malicious + url.suspicious + url.undetected}}</span></p>
+            {% endif %}
+            {% if (url.undetected > 0) %}
+            <p>Undetected: <span class="neutral"><i class="fas fa-exclamation-circle"></i> {{url.undetected}}/{{url.harm + url.malicious + url.suspicious + url.undetected}}</span></p>
+            {% endif %}
+            </div>
+            {% endfor %}
+        </section>
+        <section class="message">
+            <h3>Message</h3>
+            <div class="message-content">
+                {{analysis.text | safe}}
+            </div>
+        </section>
+    </div>
+</body>
+</html>
+
+{% endblock %}
