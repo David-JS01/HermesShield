@@ -41,6 +41,10 @@ def recuperarCorreoPorUID(correo, contraseña, uid):
         encabezados = mensaje.items()
         cuerpo = mensaje.get_payload()
         
+        folder_name = f"folder_{uid}"
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+
         # Guardar el contenido del correo en un archivo
         nombre_archivo = f"{uid}.txt"
         with open(nombre_archivo, "wb") as archivo:
@@ -48,6 +52,20 @@ def recuperarCorreoPorUID(correo, contraseña, uid):
 
         
         print(f"Correo guardado como '{nombre_archivo}'")
+
+        # Guardar los adjuntos en la carpeta
+        if mensaje.is_multipart():
+            for part in mensaje.walk():
+                if part.get_content_disposition() == 'attachment':
+                    filename = part.get_filename()
+                    if filename:
+                        file_path = os.path.join(folder_name, filename)
+                        with open(file_path, 'wb') as f:
+                            f.write(part.get_payload(decode=True))
+                        print(f'Adjunto guardado como {file_path}')
+
+
+
         return True
     except Exception as e:
         print("Error:", e)

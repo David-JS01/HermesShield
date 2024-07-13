@@ -1,14 +1,15 @@
 import email
-from modules.classes import MailServer, Mail
+from modules.classes import MailServer, Mail, URL, sandbox, File
 import re
 from modules.serversCheck import checkIp
 from requests import get
 from modules.headers import checkARC, checkAUTH, checkFrom, get_ip_sender_info
-from modules.body import lexical_analyzer, ia_model_analyzer
+from modules.body import lexical_analyzer, ia_model_analyzer, URL_analysis, FILE_analysis
 import socket
+import os
 
 
-def analisisDeSeguridad(file):
+def analisisDeSeguridad(file, uid):
     spf_pattern = r'spf=(\w+)'
     dkim_pattern = r'dkim=(\w+)'
     dmarc_pattern = r'dmarc=(\w+)'
@@ -23,6 +24,17 @@ def analisisDeSeguridad(file):
         correo_raw = f.read()
 
     mensaje = email.message_from_string(correo_raw)
+
+    correo.From = mensaje['From']
+    correo.To = mensaje['To']
+    correo.Subject = mensaje['Subject']
+    correo.Date = mensaje['Date']
+
+    contenido_html = None
+    for part in mensaje.walk():
+        if part.get_content_type() == 'text/html':
+            contenido_html = part.get_payload(decode=True).decode(part.get_content_charset())
+    correo.text = contenido_html
 
     ################################CABECERAS DEL EMAIL#############################################################################
 
@@ -70,14 +82,56 @@ def analisisDeSeguridad(file):
 
     auth_result = mensaje['Authentication-Results']
     sender_ip = re.search(ip_pattern, auth_result)
+    correo.ip_sender = sender_ip.group(1)
     #get_ip_sender_info(sender_ip.group(1)) #de momento comentado para evitar gasto de recursos en pruebas
 
 
-    ################################ BODY DEL EMAIL ###################################################
+    ################################ CUERPO DEL EMAIL ###################################################
     f1 = lexical_analyzer(mensaje)
     f2 = ia_model_analyzer(mensaje)
     percTotal = percTotal + f1 + f2
+    URL_analysis(mensaje, correo)
+
+    folder_name = f"folder_{uid}"
+    if os.path.exists(folder_name):
+        print("adjuntos encontrados")
+        try:
+        # Iterate over all items in the directory
+            for item in os.listdir(folder_name):
+                item_path = os.path.join(folder_name, item)
+            
+                # Check if the item is a file
+                if os.path.isfile(item_path):
+                    file_size = os.path.getsize(item_path)
+                    print(f"File: {item_path} Size: {file_size} bytes")
+                    url = "https://www.virustotal.com/api/v3/files"
+                    if file_size > 32000000:
+                        print("max size getting url...")
+                        url = get_url_file()
+                    file = FILE_analysis(url, item_path)
+                    correo.add_file(file)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+    context = correo.__dict__
+    context['servidores'] = [s.__dict__ for s in correo.servidores]
+    context['urls'] = [u.__dict__ for u in correo.urls]
+
+    # Ensure all 'engine_analysis' elements in each URL are converted to dictionaries
+    for url in context['urls']:
+        url['engine_analysis'] = [e.__dict__ for e in url['engine_analysis']]
+
+    context['files'] = [f.__dict__ for f in correo.files]
+
+    # Ensure all 'engine_analysis' elements in each file are converted to dictionaries
+    for file in context['files']:
+        file['engine_analysis'] = [e.__dict__ for e in file['engine_analysis']]
+        # Handle sandboxResult if it exists and is not a list
+        if file['sandboxResult'] and isinstance(file['sandboxResult'], sandbox):
+            file['sandboxResult'] = file['sandboxResult'].__dict__
+    print(context)
+    percTotal = correo.peligrosidad
     print("fiabilidad correo: " + str(100-percTotal) + "%")
-    return str(100-percTotal), serverList
+    return str(100-percTotal), serverList, context
     
     return ""
