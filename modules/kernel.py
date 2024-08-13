@@ -87,8 +87,8 @@ def analisisDeSeguridad(file, uid):
 
 
     ################################ CUERPO DEL EMAIL ###################################################
-    f1 = lexical_analyzer(mensaje)
-    f2 = ia_model_analyzer(mensaje)
+    f1 = lexical_analyzer(mensaje, correo)
+    f2 = ia_model_analyzer(mensaje, correo)
     percTotal = percTotal + f1 + f2
     URL_analysis(mensaje, correo)
 

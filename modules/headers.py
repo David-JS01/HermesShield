@@ -12,7 +12,16 @@ import requests
 def decode_name(name):
     decoded_name = decode_header(name)[0][0]
     if isinstance(decoded_name, bytes):
-        name = decoded_name.decode('utf-8')  # Assuming UTF-8 encoding
+        #name = decoded_name.decode('utf-8')  # Assuming UTF-8 encoding
+        for encoding in ['utf-8', 'iso-8859-1', 'ascii']:
+            try:
+                name = decoded_name.decode(encoding)
+                break  # Salir del bucle si la decodificación es exitosa
+            except UnicodeDecodeError:
+                continue  # Intentar la siguiente codificación si falla
+        else:
+            # Si ninguna codificación funcionó, usa la decodificación con 'replace' para evitar errores
+            name = decoded_name.decode('utf-8', errors='replace')
     else:
         name = decoded_name
     return name

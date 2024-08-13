@@ -100,7 +100,7 @@ def get_text_from_body(mensaje):
     
     return email_body
 
-def lexical_analyzer(mensaje):
+def lexical_analyzer(mensaje, correo):
     # Define patterns for common spam, phishing, and CEO fraud terms
     english_patterns = {
         'spam': r"(free|money|offer|click|now|urgent|limited time|unsubscrib)",
@@ -138,10 +138,11 @@ def lexical_analyzer(mensaje):
     total_percen= english_total / 0.1 + spanish_total / 0.1
 
     peligrosidad = total_percen * 10 / 100 #habria que cambiar el 10 por el peso que le queramos dar
-
+    if english_total > 0 or spanish_total > 0:
+        correo.fraudPatterns = True
     return peligrosidad
 
-def ia_model_analyzer (mensaje):
+def ia_model_analyzer (mensaje, correo):
     peligrosidad = 0
     # Load the classifier
     classifier = joblib.load('modules/model/classifier_model.pkl')
@@ -157,6 +158,7 @@ def ia_model_analyzer (mensaje):
     label = predicted[0]
     if label == 'spam':
         peligrosidad = 10
+        correo.spam_mail = True
     print(new_text)
     print(predicted)
     return peligrosidad

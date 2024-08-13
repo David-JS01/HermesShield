@@ -1,3 +1,91 @@
+.server-box {
+    border: 1px solid #ddd;
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.server-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+}
+
+.server-icon {
+    margin-right: 20px;
+    font-size: 18px;
+    color: #007bff;
+}
+
+.server-details {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.server-details h3 {
+    margin: 0;
+}
+
+.server-risk {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.high-risk {
+    background-color: #ff4c4c;
+    color: #fff;
+}
+
+.medium-risk {
+    background-color: #ffcc00;
+    color: #fff;
+}
+
+.low-risk {
+    background-color: #4caf50;
+    color: #fff;
+}
+
+.blacklists {
+    padding: 10px;
+    background-color: #fff;
+}
+
+.blacklists p {
+    margin: 0;
+    font-weight: bold;
+}
+
+.blacklists ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.blacklists ul li {
+    list-style-type: disc;
+    margin: 5px 0;
+}
+
+.highlight-text {
+    color: #007BFF; /* Azul específico. Cambia el valor al color deseado */
+}
+.footer-note {
+    font-size: 0.9em;
+    color: #555; /* Gris oscuro para el texto */
+    text-align: center; /* Centra el texto */
+    margin-top: 20px; /* Espacio superior para separación */
+    padding: 10px; /* Espacio interno para un mejor aspecto */
+    border-top: 1px solid #ddd; /* Línea superior para separar del contenido */
+}
+
+
 @page {
     size: A4;
     margin: 1cm;
@@ -12,7 +100,8 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    width: 100%;
+    max-width: none;
     margin: 20px auto;
     background-color: #fff;
     padding: 20px;
@@ -24,6 +113,7 @@ header {
     margin-bottom: 20px;
     padding-bottom: 10px;
 }
+
 
 header h1 {
     margin: 0;
@@ -178,96 +268,9 @@ section h3 {
     height: auto;
 }
 
-.highlight-text {
-    color: #007BFF; /* Azul específico. Cambia el valor al color deseado */
-}
-.footer-note {
-    font-size: 0.9em;
-    color: #555; /* Gris oscuro para el texto */
-    text-align: center; /* Centra el texto */
-    margin-top: 20px; /* Espacio superior para separación */
-    padding: 10px; /* Espacio interno para un mejor aspecto */
-    border-top: 1px solid #ddd; /* Línea superior para separar del contenido */
-}
-
 @media print {
 
     body {
-        font-size: 11px;
+        font-size: 13px;
     }
-
-    .container {
-        max-width: 1200px;
-        margin: 20px auto;
-        background-color: #fff;
-        padding: 20px;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    }
-    
-    
-
-    .timeline-item {
-        position: relative;
-        margin: 20% 0;
-        width: 45%;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-
-    .timeline-item:nth-child(odd) {
-        left: 5%;
-    }
-    
-    .timeline-item:nth-child(even) {
-        left: 50.6%;
-    }
-
-    .timeline {
-        position: relative;
-        width: 100%;
-        min-height: 100vh; /* Asegura que la línea de tiempo ocupe al menos toda la altura de la vista */
-    }
-    
-    .timeline::before {
-        content: '';
-        position: absolute;
-        left: 50%;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        background: #C5C5C5;
-    }
-
-    .timeline-item {
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }
-
-    
-
-    .title {
-        background-color: #FFF;
-        margin: -1%;
-    }
-
-    .header-image {
-        width: 20px; /* Ajusta el tamaño de la imagen según tus necesidades */
-        height: auto;
-    }
-    .header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #FFF;
-        margin: 10px;
-    }
-    .container {
-        width: 100%;
-        max-width: none;
-        margin: 0;
-        padding: 0;
-        box-shadow: none;
-        /* Otros estilos para ajustar el diseño en el PDF */
-    }
-
 }
