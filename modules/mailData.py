@@ -24,18 +24,18 @@ def recuperarCorreoPorUID(correo, contraseña, uid):
 
         # Seleccionar la bandeja de entrada
         imap_server.select('inbox')
-        print("pasa 1")
+        
         # Obtener el correo con el UID específico
         status, data = imap_server.fetch(uid, '(RFC822)')
-        print("pasa 2")
+        
         
         # Cerrar conexión
         imap_server.logout()
-        print("pasa 2.5")
+        
         print (status)
         # El contenido del correo está en data[0][1]
         correo_completo = data[0][1]
-        print("pasa 3")
+        
         # Parsear el correo para obtener los encabezados y el cuerpo
         mensaje = email.message_from_bytes(correo_completo)
         encabezados = mensaje.items()

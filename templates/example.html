@@ -1,36 +1,23 @@
 {% extends 'base.html' %}
-
 {% block head %}
-    <title>Email Investigation Report</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/example.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    
-</head>
-
-    <script>
-        // JavaScript function to get the current date and display it in the <p> element
-        function displayDate() {
-            var currentDate = new Date();
-            var formattedDate = currentDate.toDateString(); // Format the date as a string
-            document.getElementById("dateDisplay").innerText = formattedDate; // Insert the date into the <p> element
-        }
-    </script>
 {% endblock %}
 
 {% block body %}
-<body onload="displayDate()">
+<body >
     <div class="container">
-        <header>
+        <header class="header">
             <div class="header-content">
                 <div class="title">
             <h1>Email Investigation Report | <span class="highlight-text">HermesShield</span></h1>
             <h2>Report for email with uid {{uid}} | {{ analysis.Subject }}</h2>
                 </div>
-                <img src="{{ url_for('static', filename='imgs/icon.png') }}" class="header-image"/>
+                <img src="{{ url_for('static', filename='imgs/icon.png', _external=True) }}" class="header-image">
                 
             </div>
-            <p id="dateDisplay"></p>
+            <p id="dateDisplay">{{ current_date }}</p>
             <p>Hash: {{ hash }}</p>
         </header>
         {% if (analysis._peligrosidad > 20) %}
@@ -132,23 +119,34 @@
         </section>
         <section class="servers">
             <h3>Received servers</h3>
-            <div class="timeline">
-                {% for server in analysis.servidores %}
-                <div class="timeline-item">
-                    <div class="timeline-content">
-                        <h4><i class="fas fa-server"></i> Dominio: {{server.ip_address}}</h4> 
-                        <h4>IP: {{server.domain}}</h4>
-                        {% if (server.perc > 0) %}
-                        <p><span class="danger">Riesgo: {{server.perc}}%</span></p>
-                        <h5>Listas:</h5>
-                        <p>{{server.blacklists}}</p>
-                        {% else %}
-                        <p>Riesgo: {{server.perc}}%</p>
-                        {% endif %}
+
+            {% for server in analysis.servidores %}
+            <div class="server-box">
+                <div class="server-header">
+                    <div class="server-icon"><i class="fas fa-server"></i></div>
+                    <div class="server-details">
+                        <h3>Dominio: {{server.ip_address}}</h3>
+                        <p>IP: {{server.domain}}</p>
                     </div>
+                    {% if (server.perc > 0) %}
+                    <div class="server-risk high-risk">Riesgo: {{ "%.2f" % server.perc}}%</div>
+                    {% else %}
+                    <div class="server-risk low-risk">Riesgo: {{ "%.2f" % server.perc}}%</div>
+                    {% endif %}
                 </div>
-                {% endfor %}
+                {% if (server.perc > 0) %}
+                <div class="blacklists">
+                    <p>Blacklists:</p>
+                    <ul>
+                        {% for lista in server.blacklists %}
+                        <li>{{ lista }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
             </div>
+            {% endfor %}
+            
         </section>
         <section class="attachments">
             <h3>Attachments</h3>

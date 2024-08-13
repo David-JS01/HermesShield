@@ -87,6 +87,7 @@ class Mail:
         self.emisor_missmatch = False
         self.checked = False
         self.spam_mail = False
+        self.fraudPatterns = False
         self.ip_sender = ""
         self._peligrosidad = 0
         self.urls = []

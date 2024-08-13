@@ -1,10 +1,14 @@
-from flask import Flask, render_template, url_for, request, redirect, flash
+from flask import Flask, render_template, url_for, request, redirect, flash, make_response
 from cryptography.fernet import Fernet
 import os
 from modules.mails import recuperarCorreos
 from modules.mailData import recuperarCorreoPorUID, leer_correo_archivo
 from modules.kernel import analisisDeSeguridad
 import shutil
+from weasyprint import HTML, CSS
+from datetime import datetime
+import hashlib
+
 
 
 app = Flask(__name__)
@@ -13,6 +17,26 @@ login_file="./login.txt"
 correoUsuario="hola"
 key="h"
 dicts = [None] * (30 + 1)
+
+def calculate_email_hash_from_file(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            email_content = file.read()
+        
+        # Crear un objeto hash SHA-256
+        sha256_hash = hashlib.sha256()
+        
+        # Actualizar el objeto hash con el contenido del correo
+        sha256_hash.update(email_content.encode('utf-8'))
+        
+        # Obtener el valor hexadecimal del hash
+        email_hash = sha256_hash.hexdigest()
+        
+        return email_hash
+    except FileNotFoundError:
+        return "File not found"
+    except Exception as e:
+        return f"An error occurred: {e}"
 
 def verificar_credenciales(archivo):
     try:
@@ -40,7 +64,7 @@ def guardar_credenciales(correo, contraseña):
     global key
     key = Fernet.generate_key()
     
-    print("datos a cifrar "+ contraseña +"contraseña pa encriptar " + str(key))
+    print("datos a cifrar "+ contraseña +"contraseña para encriptar " + str(key))
     c = Fernet(key)
     contraseña_encriptada = c.encrypt(contraseña.encode()).decode()
 
@@ -61,7 +85,7 @@ def recuperar_credenciales():
             encrypted_password = line[1]
 
             clave=key
-            print("datos "+ encrypted_password +"contraseña pa desencriptar " + str(clave))
+            print("datos "+ encrypted_password +"contraseña para desencriptar " + str(clave))
             cipher_suite = Fernet(clave)
             contrasena_desencriptada = cipher_suite.decrypt(encrypted_password).decode()
             # devolvemos credenciales.
@@ -150,7 +174,24 @@ def showMail(uid):
 
 @app.route('/mail/<uid>/report')
 def showReport(uid):
-    return render_template('report.html', uid=uid, analysis = dicts[int(uid)])
+    hash = calculate_email_hash_from_file(f"{uid}.txt")
+    return render_template('report.html', uid=uid, analysis = dicts[int(uid)], hash=hash)
+
+@app.route('/mail/<uid>/pdf')
+def generate_pdf(uid):
+    # Generar el HTML a partir de una plantilla
+    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    hash = calculate_email_hash_from_file(f"{uid}.txt")
+    html = render_template('example.html', uid=uid, analysis = dicts[int(uid)], current_date=current_date, hash=hash)  # Asegúrate de tener una plantilla HTML
+    css_path = os.path.join(app.root_path, 'static/css/example.css')
+    pdf = HTML(string=html).write_pdf(stylesheets=[CSS(filename=css_path)])
+    nombre = f"report_{uid}.pdf"
+
+    # Crear una respuesta de tipo archivo PDF
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename={nombre}'
+    return response
 
 
 @app.route('/logout')

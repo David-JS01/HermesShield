@@ -25,6 +25,18 @@
                 window.open(reportUrl, '_blank');
             }
             </script>
+         <script>
+            function openPDF() {
+                // Obtener la URL actual
+                let currentUrl = window.location.href;
+                
+                // Agregar '/report' al final de la URL actual
+                let reportUrl = currentUrl + '/pdf';
+                
+                // Abrir la nueva URL en una pestaña nueva
+                window.open(reportUrl, '_blank');
+            }
+            </script>
             
 <title>Visualización de Correos</title>
 {% endblock %}
@@ -41,6 +53,7 @@
         <div id="myChart" width="800" height="800"></div>
         <div id="blacklistSer" width="400" height="400"></div>
         <button class="btn btn-success" onclick="openReport()">VER INFORME COMPLETO</button>
+        <button class="btn btn-success" onclick="openPDF()">DESCARGAR INFORME COMPLETO</button>
     </div>
     <div class="email-container">
     <div class="headers">
