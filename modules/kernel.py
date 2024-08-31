@@ -83,12 +83,14 @@ def analisisDeSeguridad(file, uid):
     auth_result = mensaje['Authentication-Results']
     sender_ip = re.search(ip_pattern, auth_result)
     correo.ip_sender = sender_ip.group(1)
-    #get_ip_sender_info(sender_ip.group(1)) #de momento comentado para evitar gasto de recursos en pruebas
+    get_ip_sender_info(sender_ip.group(1), correo) #de momento comentado para evitar gasto de recursos en pruebas
 
 
     ################################ CUERPO DEL EMAIL ###################################################
     f1 = lexical_analyzer(mensaje, correo)
     f2 = ia_model_analyzer(mensaje, correo)
+    correo.add_peligrosidad(f1)
+    correo.add_peligrosidad(f2)
     percTotal = percTotal + f1 + f2
     URL_analysis(mensaje, correo)
 
@@ -109,9 +111,13 @@ def analisisDeSeguridad(file, uid):
                         print("max size getting url...")
                         url = get_url_file()
                     file = FILE_analysis(url, item_path)
+                    if file.malicious > 2 or file.suspicious > 5:
+                        correo.add_peligrosidad(35)
+                    
                     correo.add_file(file)
         except Exception as e:
             print(f"An error occurred: {e}")
+
 
     context = correo.__dict__
     context['servidores'] = [s.__dict__ for s in correo.servidores]
@@ -129,6 +135,10 @@ def analisisDeSeguridad(file, uid):
         # Handle sandboxResult if it exists and is not a list
         if file['sandboxResult'] and isinstance(file['sandboxResult'], sandbox):
             file['sandboxResult'] = file['sandboxResult'].__dict__
+    
+    context['ipInfo'] = correo.ipInfo.__dict__
+    
+
     print(context)
     percTotal = correo.peligrosidad
     print("fiabilidad correo: " + str(100-percTotal) + "%")

@@ -34,9 +34,9 @@
             <p>Hash: {{ hash }}</p>
         </header>
         {% if (analysis._peligrosidad > 20) %}
-        <h1>Overall risk: <span class="danger">{{ analysis._peligrosidad }} /100</span></h1>
+        <h1>Overall risk: <span class="danger">{{ "%.2f" % analysis._peligrosidad }} /100</span></h1>
         {% else %}
-        <h1>Overall risk: <span class="pass">{{ analysis._peligrosidad }} /100</span></h1>
+        <h1>Overall risk: <span class="pass">{{ "%.2f" % analysis._peligrosidad }} /100</span></h1>
         {% endif %}
         
         <section class="headers">
@@ -82,9 +82,33 @@
                 <label><i class="fas fa-map-marker-alt"></i> Originating IP</label>
                 <p>{{analysis.ip_sender}}</p>
             </div>
-            <div class="header-item">
-                <label><i class="fas fa-server"></i> Reverse DNS</label>
-                <p>mail1.protonmail.ch</p>
+            
+        </section>
+        <section>
+            <h3>IP details</h3>
+            <div class="ip-details">
+                <p><strong>IP Address:</strong> {{ analysis.ipInfo.ip_address }}</p>
+                <p><strong>Location:</strong> {{ analysis.ipInfo.country }}</p>
+                <p><strong>ISP:</strong> {{ analysis.ipInfo.isp }}</p>
+                {% if (analysis.ipInfo.abuse_score < 55) %}
+                <p><strong>Abuse Score:</strong> <span class="severity.low"></span>{{ analysis.ipInfo.abuse_score }}</span></p>
+                {% else %}
+                <p><strong>Abuse Score:</strong> <span class="severity.high"></span>{{ analysis.ipInfo.abuse_score }}</span></p>
+                {% endif %}
+                <p><strong>Number of reports:</strong> {{ analysis.ipInfo.total_reports }}</p>
+    
+                <div class="ip-reports">
+                    <h4>IP reports</h4>
+                    {% for report in analysis.ipInfo.reports %}
+                    <div class="report-item">
+                        <p><strong>Date:</strong> {{ report.reported_at }}</p>
+                        <p><strong>Description:</strong> {{ report.comment }}</p>
+                        <p><strong>Categories:</strong> 
+                            {{report.categories}}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </section>
         <section class="security">
@@ -93,20 +117,20 @@
                 <label><i class="fas fa-shield-alt"></i> SPF</label>
                 {% if analysis.AUTH_spf_fail %}
                 <p>Result: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
-                <p>SPF Record: <span class="highlight">v=spf1 include:_spf.protection.outlook.com include:_spf.protonmail.ch mx ~all</span></p>
+                <p>SPF Record: <span class="highlight">{{analysis.spf_record}}</span></p>
                 {% else %}
                 <p>Result: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
-                <p>SPF Record: <span class="highlight">v=spf1 include:_spf.protection.outlook.com include:_spf.protonmail.ch mx ~all</span></p>
+                <p>SPF Record: <span class="highlight">{{analysis.spf_record}}</span></p>
                 {% endif %}
             </div>
             <div class="security-item">
                 <label><i class="fas fa-shield-alt"></i> DKIM</label>
                 {% if analysis.AUTH_dkim_fail %}
                 <p>Result: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
-                <p>DKIM Selector: <span class="highlight">protonmail_domainkey.huelsgroup.com</span></p>
+                <p>DKIM Selector: <span class="highlight">{{analysis.dkim_record}}</span></p>
                 {% else %}
                 <p>Result: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
-                <p>DKIM Selector: <span class="highlight">protonmail_domainkey.huelsgroup.com</span></p>
+                <p>DKIM Selector: <span class="highlight">{{analysis.dkim_record}}</span></p>
                 {% endif %}
             </div>
             <div class="security-item">
@@ -172,12 +196,12 @@
                 <p>Undetected: <span class="neutral"><i class="fas fa-exclamation-circle"></i> {{attach.undetected}}/{{attach.harm + attach.malicious + attach.suspicious + attach.undetected}}</span></p>
                 {% endif %}
                 {% for engine in attach.engine_analysis %}
-                {% if (engine.result == "malicious") %}
-                <p style="font-size:13px; padding-left:30px;"> <span class="danger">Engine: {{engine.name}} Result: {{engine.result}} Category: {{engine.category}}</span></p>
-                {% elif (engine.result == "clean") %}
-                <p style="font-size:13px; padding-left:30px;"> <span class="pass">Engine: {{engine.name}} Result: {{engine.result}} Category: {{engine.category}}</span></p>
+                {% if (engine.category == "malicious") %}
+                <p style="font-size:13px; padding-left:30px;"> <span class="danger">Engine: {{engine.name}} --> Result: {{engine.result}} --> Category: {{engine.category}}</span></p>
+                {% elif (engine.category == "clean") %}
+                <p style="font-size:13px; padding-left:30px;"> <span class="pass">Engine: {{engine.name}} --> Result: {{engine.result}} --> Category: {{engine.category}}</span></p>
                 {% else %}
-                <p style="font-size:13px; padding-left:30px;"> <span class="neutral">Engine: {{engine.name}} Result: {{engine.result}} Category: {{engine.category}}</span></p>
+                <p style="font-size:13px; padding-left:30px;"> <span class="neutral">Engine: {{engine.name}} --> Result: {{engine.result}} --> Category: {{engine.category}}</span></p>
                 {% endif %}
                 {% endfor %}
             </div>
@@ -202,11 +226,11 @@
             {% endif %}
             {% for engine in url.engine_analysis %}
                 {% if (engine.result == "malicious") %}
-                <p style="font-size:13px; padding-left:30px;"> <span class="danger">Engine: {{engine.name}} Result: {{engine.result}} Category: {{engine.category}}</span></p>
+                <p style="font-size:13px; padding-left:30px;"> <span class="danger">Engine: {{engine.name}} --> Result: {{engine.result}} --> Category: {{engine.category}}</span></p>
                 {% elif (engine.result == "clean") %}
-                <p style="font-size:13px; padding-left:30px;"> <span class="pass">Engine: {{engine.name}} Result: {{engine.result}} Category: {{engine.category}}</span></p>
+                <p style="font-size:13px; padding-left:30px;"> <span class="pass">Engine: {{engine.name}} --> Result: {{engine.result}} --> Category: {{engine.category}}</span></p>
                 {% else %}
-                <p style="font-size:13px; padding-left:30px;"> <span class="neutral">Engine: {{engine.name}} Result: {{engine.result}} Category: {{engine.category}}</span></p>
+                <p style="font-size:13px; padding-left:30px;"> <span class="neutral">Engine: {{engine.name}} --> Result: {{engine.result}} --> Category: {{engine.category}}</span></p>
                 {% endif %}
                 {% endfor %}
             </div>
