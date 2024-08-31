@@ -1,6 +1,42 @@
 #from dataclasses import dataclass, field, asdict
 #from typing import List
 
+class Report:
+    def __init__(self, reported_at, comment, categories, reporter_country):
+        self.reported_at = reported_at
+        self.comment = comment
+        self.categories = categories
+        self.reporter_country = reporter_country
+
+    def __repr__(self):
+        return (f"Report(reported_at={self.reported_at}, "
+                f"comment={self.comment}, "
+                f"categories={self.categories}, "
+                f"reporter_country={self.reporter_country})")
+
+class IPReport:
+    def __init__(self, ip_address, country, isp, domain, abuse_score, total_reports, last_reported_at):
+        self.ip_address = ip_address
+        self.country = country
+        self.isp = isp
+        self.domain = domain
+        self.abuse_score = abuse_score
+        self.total_reports = total_reports
+        self.last_reported_at = last_reported_at
+        self.reports = []
+
+    def add_report(self, report):
+        self.reports.append(report)
+
+    def __repr__(self):
+        return (f"IPReport(ip_address={self.ip_address}, "
+                f"country={self.country}, "
+                f"isp={self.isp}, "
+                f"domain={self.domain}, "
+                f"abuse_score={self.abuse_score}, "
+                f"total_reports={self.total_reports}, "
+                f"last_reported_at={self.last_reported_at}, "
+                f"reports={self.reports})")
 
 class MailServer:
     def __init__(self):
@@ -80,7 +116,9 @@ class Mail:
         self.ARC_dmarc_fail = False
         self.ARC_fail = False
         self.AUTH_spf_fail = False
+        self.spf_record = ""
         self.AUTH_dkim_fail = False
+        self.dkim_record = ""
         self.AUTH_dmarc_fail = False
         self.AUTH_compauth_fail = False
         self.servidores = []
@@ -93,6 +131,7 @@ class Mail:
         self.urls = []
         self.files = []
         self.text = ""
+        self.ipInfo = None
 
     @property
     def peligrosidad (self):

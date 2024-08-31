@@ -103,15 +103,15 @@ def get_text_from_body(mensaje):
 def lexical_analyzer(mensaje, correo):
     # Define patterns for common spam, phishing, and CEO fraud terms
     english_patterns = {
-        'spam': r"(free|money|offer|click|now|urgent|limited time|unsubscrib)",
-        'phishing': r"(verify|account|login|password|credit card|bank)",
-        'ceo_fraud': r"(transfer|payment|urgent|confidential|CEO|finance)"
+        'spam': r"\b(free|money|offer|click|now|urgent|limited time|unsubscrib)\b",
+        'phishing': r"\b(verify|account|login|password|credit card|bank)\b",
+        'ceo_fraud': r"\b(transfer|payment|urgent|confidential|CEO|finance)\b"
     }
 
     spanish_patterns = {
-        'spam': r"(gratis|dinero|oferta|haga clic|ahora|urgente|limitado|cancelar suscripción)",
-        'phishing': r"(verificar|cuenta|inicio de sesión|contraseña|tarjeta de crédito|banco)",
-        'ceo_fraud': r"(transferir|pago|urgente|confidencial|CEO|finanzas)"
+        'spam': r"\b(gratis|dinero|oferta|haga clic|ahora|urgente|limitado|cancelar suscripción)\b",
+        'phishing': r"\b(verificar|cuenta|inicio de sesión|contraseña|tarjeta de crédito|banco)\b",
+        'ceo_fraud': r"\b(transferir|pago|urgente|confidencial|CEO|finanzas)\b"
     }
 
     # Initialize counts for each category
@@ -177,6 +177,7 @@ def URL_analysis(mensaje, correo):
         correo.add_url(url_obj)
         if url_obj.malicious > 2 or url_obj.suspicious > 5:
             print("URL: "+url_obj.name+" peligrosa")
+            correo.add_peligrosidad(15)
         else:
             print("URL: "+url_obj.name+" fuera de peligro, Malicious: "+str(url_obj.malicious)+" Harm: "+str(url_obj.harm))
 
@@ -253,7 +254,7 @@ def FILE_analysis(url, file_path):
     fileAn.date = int(response_json['data']['attributes']['last_analysis_date'])
     fileAn.type = response_json['data']['attributes']['type_tag']
     #print("6")
-
+    return fileAn
     if "sandbox_verdicts" in response_json['data']['attributes']:
         sand = response_json['data']['attributes']['sandbox_verdicts']
         for box, details in sand.items():

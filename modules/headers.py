@@ -1,6 +1,6 @@
 import email
 from email.header import decode_header
-from modules.classes import MailServer, Mail
+from modules.classes import MailServer, Mail, IPReport, Report
 import re
 from modules.serversCheck import checkIp
 from requests import get
@@ -101,11 +101,13 @@ def checkAUTH (mensaje, correo):
     auth_result = mensaje['Authentication-Results']
     print(auth_result)
     spf_match = re.search(spf_pattern, auth_result)
+    correo.spf_record = mensaje ['Received-SPF']
     if spf_match.group(1) != 'pass':
         correo.AUTH_spf_fail = True
         print("fallo de auth")
         correo.add_peligrosidad(25)
     dkim_match = re.search(dkim_pattern, auth_result)
+    correo.dkim_record = mensaje ['DKIM-Signature']
     if dkim_match.group(1) != 'pass':
         correo.AUTH_dkim_fail = True
         print("fallo de auth")
@@ -175,7 +177,34 @@ def checkFrom(mensaje, correo):
     return
     
 
-def get_ip_sender_info (ip):
+def get_ip_sender_info (ip, correo):
+
+    codigo_titulos = {
+        1: "DNS Compromise",
+        2: "DNS Poisoning",
+        3: "Fraud Orders",
+        4: "DDoS Attack",
+        5: "FTP Brute-Force",
+        6: "Ping of Death",
+        7: "Phishing",
+        8: "Fraud VoIP",
+        9: "Open Proxy",
+        10: "Web Spam",
+        11: "Email Spam",
+        12: "Blog Spam",
+        13: "VPN IP",
+        14: "Port Scan",
+        15: "Hacking",
+        16: "SQL Injection",
+        17: "Spoofing",
+        18: "Brute-Force",
+        19: "Bad Web Bot",
+        20: "Exploited Host",
+        21: "Web App Attack",
+        22: "SSH",
+        23: "IoT Targeted"
+    }
+
     url = 'https://api.abuseipdb.com/api/v2/check'
 
     querystring = {
@@ -191,6 +220,30 @@ def get_ip_sender_info (ip):
 
     response = requests.request(method='GET', url=url, headers=headers, params=querystring)
 
-    # Formatted output
-    decodedResponse = json.loads(response.text)
-    print (json.dumps(decodedResponse, sort_keys=True, indent=7))
+    
+    data = response.json()['data']
+    
+    # Crear el objeto IPReport
+    ip_report = IPReport(
+        ip_address=data['ipAddress'],
+        country=data.get('countryName', 'Unknown'),
+        isp=data.get('isp', 'Unknown'),
+        domain=data.get('domain', 'Unknown'),
+        abuse_score=data['abuseConfidenceScore'],
+        total_reports=data['totalReports'],
+        last_reported_at=data['lastReportedAt']
+    )
+    
+    # Agregar los reportes al IPReport
+    for report in data['reports']:
+        ip_report.add_report(Report(
+            reported_at=report['reportedAt'],
+            comment=report['comment'],
+            categories=report['categories'],
+            reporter_country=report['reporterCountryName']
+        ))
+    
+    for report in ip_report.reports:
+        report.categories = [codigo_titulos[codigo] for codigo in report.categories]
+        
+    correo.ipInfo = ip_report
