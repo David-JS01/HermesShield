@@ -69,10 +69,6 @@
                 <label><i class="fas fa-map-marker-alt"></i> Originating IP</label>
                 <p>{{analysis.ip_sender}}</p>
             </div>
-            <div class="header-item">
-                <label><i class="fas fa-server"></i> Reverse DNS</label>
-                <p>mail1.protonmail.ch</p>
-            </div>
         </section>
         <section class="security">
             <h3>Security</h3>
@@ -115,6 +111,56 @@
                 <p>Result: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
                 <p>DMARC Record: <span class="highlight">Authentication verified</span></p>
                 {% endif %}
+            </div>
+            <div class="security-item">
+                <label><i class="fas fa-shield-alt"></i> ARC</label>
+                {% if analysis.ARC_cv_fail %}
+                <p>CV: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                {% else %}
+                <p>CV: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                {% endif %}
+                {% if analysis.ARC_spf_fail %}
+                <p>SPF: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                {% else %}
+                <p>SPF: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                {% endif %}
+                {% if analysis.ARC_dkim_fail %}
+                <p>DKIM: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                {% else %}
+                <p>DKIM: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                {% endif %}
+                {% if analysis.ARC_ARC_fail %}
+                <p>ARC: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                {% else %}
+                <p>ARC: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                {% endif %}
+            </div>
+        </section>
+        <section>
+            <h3>IP details</h3>
+            <div class="ip-details">
+                <p><strong>IP Address:</strong> {{ analysis.ipInfo.ip_address }}</p>
+                <p><strong>Location:</strong> {{ analysis.ipInfo.country }}</p>
+                <p><strong>ISP:</strong> {{ analysis.ipInfo.isp }}</p>
+                {% if (analysis.ipInfo.abuse_score < 55) %}
+                <p><strong>Abuse Score:</strong> <span class="severity.low"></span>{{ analysis.ipInfo.abuse_score }}</span></p>
+                {% else %}
+                <p><strong>Abuse Score:</strong> <span class="severity.high"></span>{{ analysis.ipInfo.abuse_score }}</span></p>
+                {% endif %}
+                <p><strong>Number of reports:</strong> {{ analysis.ipInfo.total_reports }}</p>
+    
+                <div class="ip-reports">
+                    <h4>IP reports</h4>
+                    {% for report in analysis.ipInfo.reports %}
+                    <div class="report-item">
+                        <p><strong>Date:</strong> {{ report.reported_at }}</p>
+                        <p><strong>Description:</strong> {{ report.comment }}</p>
+                        <p><strong>Categories:</strong> 
+                            {{report.categories}}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </section>
         <section class="servers">
