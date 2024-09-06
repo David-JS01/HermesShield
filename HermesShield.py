@@ -4,6 +4,7 @@ import subprocess
 import platform
 import webbrowser
 import time
+import signal
 
 def create_virtualenv(env_dir):
     print("Creando entorno virtual...")
@@ -31,7 +32,7 @@ def run_flask_app(env_dir):
         subprocess.Popen([python_executable, "app.py"], creationflags=subprocess.CREATE_NEW_CONSOLE)
     else:
         # Ejecuta en segundo plano
-        subprocess.Popen([python_executable, "app.py"])
+        subprocess.check_call([python_executable, "app.py"])
     
     # Esperar unos segundos para asegurarse de que Flask se inicie
     time.sleep(5)
@@ -40,7 +41,13 @@ def open_browser(url):
     print(f"Abriendo el navegador en {url}...")
     webbrowser.open(url)
 
+def signal_handler(sig, frame):
+    print("Interrupción recibida, ejecutando cleanup...")
+    
+    sys.exit(0)
+
 def main():
+    signal.signal(signal.SIGINT, signal_handler)
     env_dir = "env"
 
     # Verificar si el entorno virtual ya existe
@@ -50,6 +57,7 @@ def main():
     else:
         print("Entorno virtual ya existe. Saltando creación e instalación de dependencias.")
 
+    open_browser("http://127.0.0.1:5000/")
     run_flask_app(env_dir)
     open_browser("http://127.0.0.1:5000/")
 

@@ -268,6 +268,63 @@ section h3 {
     height: auto;
 }
 
+.ip-details, .files-list {
+    background-color: #f1f1f1;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.ip-reports h4 {
+    font-size: 18px;
+    color: #007BFF;
+    margin-bottom: 10px;
+}
+
+.report-item {
+    background-color: #fff;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #007BFF;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.severity {
+    font-weight: bold;
+}
+
+.severity.low {
+    color: green;
+}
+
+.severity.medium {
+    color: orange;
+}
+
+.severity.high {
+    color: red;
+}
+
+.file-item {
+    background-color: #fff;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #28a745;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.footer-note {
+    font-size: 0.9em;
+    color: #555;
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+}
+
+
 @media print {
 
     body {
