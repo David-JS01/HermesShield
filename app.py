@@ -8,6 +8,8 @@ import shutil
 from weasyprint import HTML, CSS
 from datetime import datetime
 import hashlib
+import signal
+import sys
 
 
 
@@ -199,9 +201,13 @@ def logout():
     cleanup()
     return redirect('/')
 
-
+def signal_handler(sig, frame):
+    print("Interrupción recibida, ejecutando cleanup...")
+    cleanup()
+    sys.exit(0)
 
 if __name__=="__main__":
+    signal.signal(signal.SIGINT, signal_handler)
     try:
         app.run(debug=True)
     finally:
