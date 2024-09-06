@@ -153,6 +153,29 @@
                 <p>DMARC Record: <span class="highlight">Authentication verified</span></p>
                 {% endif %}
             </div>
+            <div class="security-item">
+                <label><i class="fas fa-shield-alt"></i> ARC</label>
+                {% if analysis.ARC_cv_fail %}
+                <p>CV: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                {% else %}
+                <p>CV: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                {% endif %}
+                {% if analysis.ARC_spf_fail %}
+                <p>SPF: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                {% else %}
+                <p>SPF: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                {% endif %}
+                {% if analysis.ARC_dkim_fail %}
+                <p>DKIM: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                {% else %}
+                <p>DKIM: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                {% endif %}
+                {% if analysis.ARC_ARC_fail %}
+                <p>ARC: <span class="danger"><i class="fas fa-exclamation-circle"></i> FAIL</span></p>
+                {% else %}
+                <p>ARC: <span class="pass"><i class="fas fa-check-circle"></i> PASS</span></p>
+                {% endif %}
+            </div>
         </section>
         <section class="servers">
             <h3>Received servers</h3>
