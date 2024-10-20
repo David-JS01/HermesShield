@@ -3,7 +3,6 @@ import msal
 import os
 
 CLIENT_ID = 'de48fb58-ae35-457a-99cc-15d6c1493ca1'
-CLIENT_SECRET = '78681cc2-c62c-482b-a863-86d1d2bf82f4'
 AUTHORITY_URL = 'https://login.microsoftonline.com/common'
 REDIRECT_URI = 'http://localhost:5000/callback'
 SCOPE = ["https://outlook.office.com/IMAP.AccessAsUser.All"]
