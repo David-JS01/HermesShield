@@ -28,7 +28,7 @@ def url_vt_call(url):
     payload = { "url": url }
     headers = {
         "accept": "application/json",
-        "x-apikey": "3b117c78f50b3f70010ddbf7bbc84f12e2bf5b2a81642b1e062a22b3b5e109d8",
+        "x-apikey": "",
         "content-type": "application/x-www-form-urlencoded"
     }
 
@@ -41,7 +41,7 @@ def url_vt_call(url):
 
     headers = {
         "accept": "application/json",
-        "x-apikey": "3b117c78f50b3f70010ddbf7bbc84f12e2bf5b2a81642b1e062a22b3b5e109d8"
+        "x-apikey": ""
     }
     sleep(15)
     response = requests.get(urlvt, headers=headers)
@@ -69,7 +69,7 @@ def url_vt_call(url):
     urlvt= "https://www.virustotal.com/api/v3/urls/{url_id}"
     headers = {
         "accept": "application/json",
-        "x-apikey": "3b117c78f50b3f70010ddbf7bbc84f12e2bf5b2a81642b1e062a22b3b5e109d8"
+        "x-apikey": ""
         }
     response = requests.get(urlvt, headers=headers)
     response_json = response.json()
@@ -185,7 +185,7 @@ def wait_analysis(url):
     headers = {
         "accept": "application/json",
         
-        "x-apikey": "3b117c78f50b3f70010ddbf7bbc84f12e2bf5b2a81642b1e062a22b3b5e109d8"
+        "x-apikey": ""
     }
     while True:
         print("WAITING FOR ANALYSIS REPORT")
@@ -210,7 +210,7 @@ def FILE_analysis(url, file_path):
     headers = {
         "accept": "application/json",
         
-        "x-apikey": "3b117c78f50b3f70010ddbf7bbc84f12e2bf5b2a81642b1e062a22b3b5e109d8"
+        "x-apikey": ""
     }
 
     response = requests.post(url, files=files, headers=headers)
@@ -223,7 +223,7 @@ def FILE_analysis(url, file_path):
     url = f"https://www.virustotal.com/api/v3/files/{f_hash}"
     headers = {"accept": "application/json",
 
-            "x-apikey": "3b117c78f50b3f70010ddbf7bbc84f12e2bf5b2a81642b1e062a22b3b5e109d8"
+            "x-apikey": ""
     }
 
     response = requests.get(url, headers=headers)
