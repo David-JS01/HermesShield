@@ -19,6 +19,7 @@ login_file="./login.txt"
 correoUsuario="hola"
 key="h"
 dicts = [None] * (30 + 1)
+TOKEN_CACHE_FILE = 'token_cache.json'
 
 def calculate_email_hash_from_file(file_path):
     try:
@@ -105,6 +106,10 @@ def cleanup():
         # Si el archivo no está vacío, vaciar su contenido
         open(login_file, 'w').close()
     
+    if os.path.exists(TOKEN_CACHE_FILE):
+        os.remove(TOKEN_CACHE_FILE)
+        print("Token cache cleared. User will need to log in again.")
+    
     archivos = os.listdir()
     
     # Iterar sobre cada archivo en el directorio
@@ -141,6 +146,26 @@ def index():
     #dicts = [None] * (len(emails) + 1)
     return render_template("index.html", username=correo, emails=emails)
 
+@app.route("/callback")
+def callback():
+    # This route handles the OAuth 2.0 redirect from Microsoft
+    if "code" in request.args:
+        # Get the authorization code from the callback
+        auth_code = request.args["code"]
+
+        # Exchange the authorization code for an access token
+        result = msal_app.acquire_token_by_authorization_code(
+            auth_code, scopes=SCOPE, redirect_uri=REDIRECT_URI
+        )
+
+        # Store the token in the session
+        if "access_token" in result:
+            session["token"] = result["access_token"]
+            return redirect(url_for("index"))
+        else:
+            return "Error during token acquisition: " + str(result.get("error"))
+
+    return "Authorization code not found in the request."
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -162,7 +187,7 @@ def login():
 def showMail(uid):
     correo, contraseña=recuperar_credenciales()
     if not os.path.isfile(f"{uid}.txt"):
-        if not recuperarCorreoPorUID(correo, contraseña, uid):
+        if not recuperarCorreoPorUID(correo, uid):
             return "error en la recuperación del correo"
     datos_correo=leer_correo_archivo(f"{uid}.txt")
     #flash('analizando email')
